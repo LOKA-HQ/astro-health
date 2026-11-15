@@ -1,0 +1,95 @@
+{
+ "resting_heart_rate_bpm": {
+  "normal": [
+   60,
+   100
+  ],
+  "warning_high": 90,
+  "critical_high": 100,
+  "critical_low": 50,
+  "note": "NASA-STD-3001 / clinical resting range; in-flight resting HR often lower"
+ },
+ "sleep_hours": {
+  "normal": [
+   7,
+   9
+  ],
+  "warning_low": 6,
+  "critical_low": 5,
+  "note": "NASA recommends 8h sleep opportunity; <6h impairs performance"
+ },
+ "sleep_quality_percent": {
+  "normal": [
+   70,
+   100
+  ],
+  "warning_low": 60
+ },
+ "spo2_percent": {
+  "normal": [
+   95,
+   100
+  ],
+  "warning_low": 96,
+  "critical_low": 94
+ },
+ "stress_score": {
+  "normal": [
+   0,
+   50
+  ],
+  "warning_high": 65,
+  "critical_high": 80,
+  "note": "App-defined 0-100 composite; calibrate per crew baseline"
+ },
+ "blood_pressure_systolic_mmhg": {
+  "normal": [
+   90,
+   120
+  ],
+  "warning_high": 140,
+  "critical_high": 160,
+  "critical_low": 90,
+  "note": "Clinical resting range; in-flight BP trends matter more than single readings"
+ },
+ "blood_pressure_diastolic_mmhg": {
+  "normal": [
+   60,
+   80
+  ],
+  "warning_high": 90,
+  "critical_high": 100,
+  "critical_low": 60
+ },
+ "body_temperature_c": {
+  "normal": [
+   36.5,
+   37.5
+  ],
+  "warning_high": 38.0,
+  "critical_high": 39.0,
+  "warning_low": 35.5,
+  "critical_low": 35.0,
+  "note": "Fever threshold 38.0 C; core temp can run slightly higher in flight"
+ },
+ "mood_score_1_10": {
+  "normal": [
+   6,
+   10
+  ],
+  "warning_low": 4,
+  "critical_low": 2,
+  "note": "Self-reported daily mood, 1-10; low mood is an early behavioral-health signal"
+ },
+ "steps_per_day": {
+  "normal": [
+   4000,
+   12000
+  ],
+  "warning_low": 2500,
+  "note": "In-flight exercise countermeasure target ~2.5h/day; steps are a proxy only"
+ },
+ "lab_panels": {
+  "note": "Reference ranges come with the OSDR data itself (ref_min/ref_max per indicator); flag low/high vs those ranges"
+ }
+}

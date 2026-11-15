@@ -1,0 +1,14 @@
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    # Starlette 1.x deprecates httpx-backed TestClient; the warning is
+    # test-only noise (httpx is still the correct client for the app).
+    "ignore:Using `httpx` with `starlette.testclient` is deprecated:UserWarning",
+]

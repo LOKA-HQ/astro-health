@@ -1,0 +1,421 @@
+{
+ "source": "NASA OSDR Inspiration4 OSD-571 (plasma proteomics + metabolomics), processed differential results",
+ "comparison": "R+1 (day after landing) vs pre-flight baseline (L-92, L-44, L-3); positive logFC = higher after flight; limma analysis",
+ "proteomics": {
+  "I4-FP1": {
+   "total_features": 1765,
+   "significant_adj_p_lt_0.05": 59,
+   "top_changes": [
+    {
+     "feature": "CALU",
+     "logFC": 2.66,
+     "direction": "up_after_flight",
+     "adj_p": 0.0299633220878811
+    },
+    {
+     "feature": "TARS1",
+     "logFC": 2.52,
+     "direction": "up_after_flight",
+     "adj_p": 0.0282148092779481
+    },
+    {
+     "feature": "FGA.1",
+     "logFC": -2.44,
+     "direction": "down_after_flight",
+     "adj_p": 0.0469079093525294
+    },
+    {
+     "feature": "FBLN5",
+     "logFC": -2.1,
+     "direction": "down_after_flight",
+     "adj_p": 0.00599509900131895
+    },
+    {
+     "feature": "ICAM3",
+     "logFC": -1.94,
+     "direction": "down_after_flight",
+     "adj_p": 0.0126504220005841
+    },
+    {
+     "feature": "ABCF2",
+     "logFC": -1.86,
+     "direction": "down_after_flight",
+     "adj_p": 0.0165742286238043
+    },
+    {
+     "feature": "SNCA",
+     "logFC": 1.79,
+     "direction": "up_after_flight",
+     "adj_p": 0.00256966380078814
+    },
+    {
+     "feature": "PF4V1",
+     "logFC": 1.76,
+     "direction": "up_after_flight",
+     "adj_p": 0.00253395291464625
+    },
+    {
+     "feature": "COL4A2",
+     "logFC": -1.74,
+     "direction": "down_after_flight",
+     "adj_p": 0.00502542469537337
+    },
+    {
+     "feature": "SKP1",
+     "logFC": 1.73,
+     "direction": "up_after_flight",
+     "adj_p": 0.020232046702143
+    },
+    {
+     "feature": "RPL27",
+     "logFC": 1.65,
+     "direction": "up_after_flight",
+     "adj_p": 0.0261890439813659
+    },
+    {
+     "feature": "EIF2S1",
+     "logFC": 1.64,
+     "direction": "up_after_flight",
+     "adj_p": 0.0299633220878811
+    },
+    {
+     "feature": "QPCT",
+     "logFC": -1.6,
+     "direction": "down_after_flight",
+     "adj_p": 0.00104492259978838
+    },
+    {
+     "feature": "CSE1L",
+     "logFC": -1.49,
+     "direction": "down_after_flight",
+     "adj_p": 0.0255817766237572
+    },
+    {
+     "feature": "TGFB1",
+     "logFC": 1.48,
+     "direction": "up_after_flight",
+     "adj_p": 0.00104492259978838
+    }
+   ]
+  },
+  "I4-FP2": {
+   "total_features": 1520,
+   "significant_adj_p_lt_0.05": 56,
+   "top_changes": [
+    {
+     "feature": "FGA.1",
+     "logFC": -2.47,
+     "direction": "down_after_flight",
+     "adj_p": 0.0126772348218607
+    },
+    {
+     "feature": "ATP2C1",
+     "logFC": 1.7,
+     "direction": "up_after_flight",
+     "adj_p": 0.0332000270420643
+    },
+    {
+     "feature": "SNCA",
+     "logFC": 1.62,
+     "direction": "up_after_flight",
+     "adj_p": 0.00219001460303646
+    },
+    {
+     "feature": "COL4A2",
+     "logFC": -1.57,
+     "direction": "down_after_flight",
+     "adj_p": 0.00219001460303646
+    },
+    {
+     "feature": "PF4V1",
+     "logFC": 1.48,
+     "direction": "up_after_flight",
+     "adj_p": 0.00578446637523825
+    },
+    {
+     "feature": "RPL27",
+     "logFC": 1.43,
+     "direction": "up_after_flight",
+     "adj_p": 0.0373036927609934
+    },
+    {
+     "feature": "LPL",
+     "logFC": -1.32,
+     "direction": "down_after_flight",
+     "adj_p": 0.00219001460303646
+    },
+    {
+     "feature": "CARHSP1",
+     "logFC": 1.27,
+     "direction": "up_after_flight",
+     "adj_p": 0.00611685453277084
+    },
+    {
+     "feature": "TGFB1",
+     "logFC": 1.25,
+     "direction": "up_after_flight",
+     "adj_p": 0.00219001460303646
+    },
+    {
+     "feature": "PF4",
+     "logFC": 1.23,
+     "direction": "up_after_flight",
+     "adj_p": 0.00219001460303646
+    },
+    {
+     "feature": "CSE1L",
+     "logFC": -1.22,
+     "direction": "down_after_flight",
+     "adj_p": 0.0221875742802225
+    },
+    {
+     "feature": "FBXO7",
+     "logFC": 1.19,
+     "direction": "up_after_flight",
+     "adj_p": 0.0195649975623467
+    },
+    {
+     "feature": "QPCT",
+     "logFC": -1.18,
+     "direction": "down_after_flight",
+     "adj_p": 0.00869011638341591
+    },
+    {
+     "feature": "PAFAH1B1",
+     "logFC": 1.17,
+     "direction": "up_after_flight",
+     "adj_p": 0.0214353541294048
+    },
+    {
+     "feature": "AIDA",
+     "logFC": 1.17,
+     "direction": "up_after_flight",
+     "adj_p": 0.00595638184519635
+    }
+   ]
+  }
+ },
+ "metabolomics": {
+  "I4-FP1": {
+   "total_features": 656,
+   "significant_adj_p_lt_0.05": 101,
+   "top_changes": [
+    {
+     "feature": "LysoPC(15:0)",
+     "logFC": -2.34,
+     "direction": "down_after_flight",
+     "adj_p": 3.6834204977532e-05
+    },
+    {
+     "feature": "Inosine",
+     "logFC": 2.16,
+     "direction": "up_after_flight",
+     "adj_p": 0.000244573408643952
+    },
+    {
+     "feature": "LysoPC(14:0)",
+     "logFC": -2.11,
+     "direction": "down_after_flight",
+     "adj_p": 0.000217280661662751
+    },
+    {
+     "feature": "LysoPC(17:0)",
+     "logFC": -2.05,
+     "direction": "down_after_flight",
+     "adj_p": 0.000217280661662751
+    },
+    {
+     "feature": "Sphingosine 1-phosphate",
+     "logFC": -1.91,
+     "direction": "down_after_flight",
+     "adj_p": 0.000585180534667056
+    },
+    {
+     "feature": "FA (26:0) [M-H]-",
+     "logFC": 1.9,
+     "direction": "up_after_flight",
+     "adj_p": 0.00091134120509881
+    },
+    {
+     "feature": "LysoPC(16:1)",
+     "logFC": -1.88,
+     "direction": "down_after_flight",
+     "adj_p": 0.000702978575144069
+    },
+    {
+     "feature": "LysoPC(16:0)",
+     "logFC": -1.84,
+     "direction": "down_after_flight",
+     "adj_p": 0.00175573460109972
+    },
+    {
+     "feature": "PC(P38:3)",
+     "logFC": 1.81,
+     "direction": "up_after_flight",
+     "adj_p": 0.00091134120509881
+    },
+    {
+     "feature": "N-Acetylphenylalanine",
+     "logFC": -1.76,
+     "direction": "down_after_flight",
+     "adj_p": 0.00400202977093384
+    },
+    {
+     "feature": "2-Ketoisovaleric acid",
+     "logFC": -1.76,
+     "direction": "down_after_flight",
+     "adj_p": 0.00344423468846351
+    },
+    {
+     "feature": "Proline Betaine",
+     "logFC": -1.72,
+     "direction": "down_after_flight",
+     "adj_p": 0.00607666201590024
+    },
+    {
+     "feature": "C-PAF/methylCarbamyl-PAF C-16",
+     "logFC": -1.71,
+     "direction": "down_after_flight",
+     "adj_p": 0.00358348881742685
+    },
+    {
+     "feature": "LysoPC(18:0)",
+     "logFC": -1.71,
+     "direction": "down_after_flight",
+     "adj_p": 0.00123154105002937
+    },
+    {
+     "feature": "Dehydroascorbic Acid",
+     "logFC": -1.71,
+     "direction": "down_after_flight",
+     "adj_p": 0.00362910127222226
+    }
+   ]
+  },
+  "I4-FP2": {
+   "total_features": 656,
+   "significant_adj_p_lt_0.05": 0,
+   "top_changes": []
+  },
+  "I4-RP3": {
+   "total_features": 656,
+   "significant_adj_p_lt_0.05": 63,
+   "top_changes": [
+    {
+     "feature": "Inosine",
+     "logFC": 2.11,
+     "direction": "up_after_flight",
+     "adj_p": 0.00136279358146673
+    },
+    {
+     "feature": "PC (38:3) [M+H]+",
+     "logFC": -1.96,
+     "direction": "down_after_flight",
+     "adj_p": 0.00136279358146673
+    },
+    {
+     "feature": "UDP",
+     "logFC": 1.86,
+     "direction": "up_after_flight",
+     "adj_p": 0.00398066512453586
+    },
+    {
+     "feature": "Taurine",
+     "logFC": 1.84,
+     "direction": "up_after_flight",
+     "adj_p": 0.00398066512453586
+    },
+    {
+     "feature": "LysoPC(18:3)",
+     "logFC": -1.7,
+     "direction": "down_after_flight",
+     "adj_p": 0.00471015214066751
+    },
+    {
+     "feature": "S-Adenosylhomocysteine (SAH)",
+     "logFC": -1.7,
+     "direction": "down_after_flight",
+     "adj_p": 0.00862406477279026
+    },
+    {
+     "feature": "SM (d36:0) [M+H]+",
+     "logFC": 1.68,
+     "direction": "up_after_flight",
+     "adj_p": 0.00398066512453586
+    },
+    {
+     "feature": "PC(42:8)",
+     "logFC": -1.63,
+     "direction": "down_after_flight",
+     "adj_p": 0.00862406477279026
+    },
+    {
+     "feature": "Hydroquinone",
+     "logFC": -1.63,
+     "direction": "down_after_flight",
+     "adj_p": 0.00862406477279026
+    },
+    {
+     "feature": "PC(42:6)",
+     "logFC": -1.63,
+     "direction": "down_after_flight",
+     "adj_p": 0.00261122997817297
+    },
+    {
+     "feature": "LysoPC(14:0)",
+     "logFC": -1.61,
+     "direction": "down_after_flight",
+     "adj_p": 0.00773158010469503
+    },
+    {
+     "feature": "Citrulline",
+     "logFC": -1.6,
+     "direction": "down_after_flight",
+     "adj_p": 0.0145746993946297
+    },
+    {
+     "feature": "2-Ketoisovaleric acid",
+     "logFC": -1.6,
+     "direction": "down_after_flight",
+     "adj_p": 0.0160359389691263
+    },
+    {
+     "feature": "LysoPC(16:1)",
+     "logFC": -1.58,
+     "direction": "down_after_flight",
+     "adj_p": 0.00862406477279026
+    },
+    {
+     "feature": "SM (d36:1) [M+H]+",
+     "logFC": 1.55,
+     "direction": "up_after_flight",
+     "adj_p": 0.00862406477279026
+    }
+   ]
+  },
+  "I4-LP3": {
+   "total_features": 656,
+   "significant_adj_p_lt_0.05": 3,
+   "top_changes": [
+    {
+     "feature": "6-Phosphogluconic Acid",
+     "logFC": 1.53,
+     "direction": "up_after_flight",
+     "adj_p": 0.0103940626500233
+    },
+    {
+     "feature": "UMP",
+     "logFC": 1.49,
+     "direction": "up_after_flight",
+     "adj_p": 0.0322199154023758
+    },
+    {
+     "feature": "PC (p-38:4) or PC (o-38:5) [M+H]+",
+     "logFC": 1.45,
+     "direction": "up_after_flight",
+     "adj_p": 0.0364268320463004
+    }
+   ]
+  }
+ }
+}

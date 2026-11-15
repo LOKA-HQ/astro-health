@@ -1,0 +1,152 @@
+{
+ "source": "NASA DONKI API (api.nasa.gov), live, no key needed for demo (DEMO_KEY); free key at api.nasa.gov removes rate limits (30/hr, 50/day on DEMO_KEY)",
+ "note": "FLR endpoint returns 404 \u2014 use SEP/CME/GST/notifications instead. Date range max 30 days per request.",
+ "fetched_at": "2026-11-15T10:36:23.052837+00:00",
+ "recent_30d": {
+  "window": "2026-10-16 to 2026-11-15",
+  "sep_events": 0,
+  "cme_events": 90,
+  "gst_events": 1,
+  "strongest_gst": {
+   "startTime": "2026-10-31T18:00Z",
+   "maxKp": 6.0,
+   "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/GST/49348/-1"
+  },
+  "cmes": [
+   {
+    "startTime": "2026-10-16T06:09Z",
+    "speed_kms": 324.0,
+    "sourceLocation": "",
+    "note": "Faint, wide CME visible to the SW in STEREO A COR2 only. The CME is not clearly seen in SOHO LASCO C2/C3 or GOES CCOR-1 "
+   },
+   {
+    "startTime": "2026-10-16T07:12Z",
+    "speed_kms": 490.0,
+    "sourceLocation": "",
+    "note": "Narrow CME visible to the SW in SOHO LASCO C2/C3 and GOES CCOR-1 imagery. The CME is not visible in STEREO A COR2 imager"
+   },
+   {
+    "startTime": "2026-10-16T08:12Z",
+    "speed_kms": 334.0,
+    "sourceLocation": "",
+    "note": "CME faintly visible to the NNW in SOHO LASCO C2/C3 and GOES CCOR-1 imagery. The CME is not clearly visible in STEREO A C"
+   },
+   {
+    "startTime": "2026-10-16T11:48Z",
+    "speed_kms": 475.0,
+    "sourceLocation": "",
+    "note": "CME visible to the east in SOHO LASCO C2/C3 and STEREO A COR2 imagery. The source is likely beyond the east limb, as mov"
+   },
+   {
+    "startTime": "2026-10-16T12:38Z",
+    "speed_kms": 247.0,
+    "sourceLocation": "N05E10",
+    "note": "CME visible faintly to the NE in STEREO A COR2. The CME is not seen in SOHO LASCO C2/C3 or GOES CCOR-1 imagery. The pote"
+   },
+   {
+    "startTime": "2026-10-16T15:12Z",
+    "speed_kms": 270.0,
+    "sourceLocation": "N10W140",
+    "note": "Bright CME seen to the NW in SOHO LASCO C2/C3 and to the NW in STEREO A COR2. Its source is likely a messy eruption seen"
+   },
+   {
+    "startTime": "2026-10-16T17:00Z",
+    "speed_kms": 479.0,
+    "sourceLocation": "",
+    "note": "Faint and narrow CME seen to the E in early SOHO LASCO C2 imagery and not seen in C3, GOES CCOR-1 and STEREO A COR2 imag"
+   },
+   {
+    "startTime": "2026-10-16T20:24Z",
+    "speed_kms": 552.0,
+    "sourceLocation": "",
+    "note": "Narrow very minor CME/outflow visible to the SW in SOHO LASCO C2/C3 and GOES CCOR-1 imagery. The CME is not visible in S"
+   },
+   {
+    "startTime": "2026-10-17T02:48Z",
+    "speed_kms": 1048.0,
+    "sourceLocation": "",
+    "note": "CME first seen to the ESE in SOHO LASCO C2 starting at 2026-10-17T02:48Z. It is also seen to the E in SOHO LASCO C3. The"
+   },
+   {
+    "startTime": "2026-10-17T17:00Z",
+    "speed_kms": 453.0,
+    "sourceLocation": "",
+    "note": "Narrow CME/outflow to the E seen in SOHO LASCO C2/C3 and GOES CCOR-1. The CME is not seen in STEREO A COR2 imagery, whic"
+   },
+   {
+    "startTime": "2026-10-17T18:12Z",
+    "speed_kms": 427.0,
+    "sourceLocation": "",
+    "note": "Narrow CME/outflow to the E seen in SOHO LASCO C2. The CME is not seen in STEREO A COR2 imagery. This CME/outflow is fol"
+   },
+   {
+    "startTime": "2026-10-18T21:30Z",
+    "speed_kms": 375.0,
+    "sourceLocation": "N10W30",
+    "note": "Faint CME first seen to the NW by GOES CCOR-1 beginning at 2026-10-18T21:30Z. This CME is not visible in SOHO LASCO C2/C"
+   },
+   {
+    "startTime": "2026-10-18T23:15Z",
+    "speed_kms": 590.0,
+    "sourceLocation": "",
+    "note": "CME first seen to the West by GOES CCOR-1 beginning at 2026-10-18T23:15Z. This CME is not visible in SOHO LASCO C2/C3 or"
+   },
+   {
+    "startTime": "2026-10-19T14:48Z",
+    "speed_kms": 387.0,
+    "sourceLocation": "",
+    "note": "CME first seen to the NNW in SOHO LASCO C2 starting at 2026-10-19T14:48Z. This CME is also seen to the NNW in SOHO LASCO"
+   },
+   {
+    "startTime": "2026-10-19T19:15Z",
+    "speed_kms": 474.0,
+    "sourceLocation": "N10W130",
+    "note": "Faint CME observed to the NW in GOES CCOR-1. It may be visible to the NW in STEREO A COR2, but only one available frame "
+   },
+   {
+    "startTime": "2026-10-20T01:26Z",
+    "speed_kms": 368.0,
+    "sourceLocation": "",
+    "note": "CME first seen to the NNW in SOHO LASCO C2 starting at 2026-10-20T01:26Z. It is also seen to the NNW in SOHO LASCO C3 an"
+   },
+   {
+    "startTime": "2026-10-20T07:24Z",
+    "speed_kms": 748.0,
+    "sourceLocation": "",
+    "note": "Narrow CME first seen to the NNW in SOHO LASCO C2 starting around 2026-10-20T07:24Z. It is also seen to the NNW in SOHO "
+   },
+   {
+    "startTime": "2026-10-20T09:09Z",
+    "speed_kms": 568.0,
+    "sourceLocation": "",
+    "note": "CME first seem to the NW in STEREO A COR2 starting at 2026-10-20T09:09Z. It is also seen to the NNW in SOHO LASCO C2 and"
+   },
+   {
+    "startTime": "2026-10-20T14:23Z",
+    "speed_kms": 920.0,
+    "sourceLocation": "",
+    "note": "Narrow CME first seen to the NW in STEREO A COR2 starting around 2026-10-20T14:23Z. It is also seen to the NNW in SOHO L"
+   },
+   {
+    "startTime": "2026-10-21T08:53Z",
+    "speed_kms": 233.0,
+    "sourceLocation": "N40E05",
+    "note": "CME first seen to the East by STEREO A COR2 beginning at 2026-10-21T08:53Z, as well as by SOHO LASCO C2/C3 and GOES CCOR"
+   }
+  ]
+ },
+ "demo_radiation_alert_case": {
+  "event": "SEP 2025-05-13T18:14Z (SOHO COSTEP 15.8-39.8 MeV), linked to flare FLR-001 + CME-001",
+  "app_alert": {
+   "level": "critical",
+   "indicator": "radiation",
+   "message": "Solar energetic particle event detected \u2014 crew should move to the shielded shelter area and limit EVA until all-clear."
+  },
+  "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/38846/-1"
+ },
+ "alert_mapping": {
+  "SEP event": "critical radiation alert (shelter + no EVA)",
+  "GST Kp>=6": "advisory (geomagnetic storm \u2014 comms/GPS may degrade, monitor crew)",
+  "fast CME (speed>1000 km/s) Earth-directed": "watch (possible SEP/GST follow-up within 1-3 days)"
+ }
+}

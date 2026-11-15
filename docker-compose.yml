@@ -1,0 +1,32 @@
+# Astro Health — full stack.
+#
+# Run from this directory:
+#   docker compose up --build
+# Then open http://localhost:8080 (dashboard) and http://localhost:8000/docs (API).
+#
+# The dashboard calls the API directly from the browser, so two values
+# must agree with the deployment: VITE_API_BASE is baked into the
+# front-end bundle at build time, and ASTRO_CORS_ORIGINS must list the
+# origin the browser loads the dashboard from.
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: astro-health-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - ASTRO_CORS_ORIGINS=http://localhost:8080,http://127.0.0.1:8080,http://localhost:5173,http://127.0.0.1:5173
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE: http://localhost:8000/api/v1
+    image: astro-health-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
