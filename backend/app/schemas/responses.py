@@ -52,6 +52,10 @@ class Alert(BaseModel):
     level: str  # critical | warning | info
     type: str  # lab | vitals | radiation
     message: str
+    # Provenance of the underlying data: "real" (NASA OSDR Inspiration4),
+    # "real_live" (NOAA/NASA live feeds) or "synthetic" (generated demo
+    # vitals). Lets clients label synthetic alerts in the UI.
+    data_source: str | None = None
     crew_id: str | None = None
     timepoint: str | None = None
     indicator: str | None = None
@@ -141,9 +145,88 @@ class CrewReport(BaseModel):
     overall_status: str
 
 
+class ForecastIndicator(BaseModel):
+    indicator: str
+    direction: str  # high | low: which side of the threshold is bad
+    threshold: float
+    current_fit: float
+    projected: float
+    slope_per_day: float
+    days_to_breach: int | None = None  # None: no breach within the horizon
+    risk: str  # low | moderate | high
+
+
+class CrewForecast(BaseModel):
+    crew_id: str
+    profile: str = "generic"
+    environment: str = "earth_ground"
+    method: str
+    window_days: int
+    horizon_days: int
+    data_source: str
+    disclaimer: str
+    overall_risk: str
+    indicators: list[ForecastIndicator]
+
+
+class ThresholdIndicator(BaseModel):
+    threshold_key: str
+    source: str  # generic | personal | generic_fallback
+    generic: dict[str, float]  # the fixed thresholds for comparison
+    thresholds: dict[str, float]  # the limits actually in force
+    environment_shift: float
+    # Personal profile only:
+    baseline_median: float | None = None
+    baseline_days: int | None = None
+    expected_value: float | None = None  # baseline moved to this environment
+    sigma: float | None = None  # robust spread used for the limits
+    baseline_outside_generic_normal: bool | None = None
+    baseline_note: str | None = None
+
+
+class CrewThresholds(BaseModel):
+    crew_id: str
+    profile: str  # generic | personal
+    environment: str
+    baseline_environment: str
+    days_in_environment: int | None = None
+    baseline_days: int  # 0 when the generic thresholds are used
+    indicators: dict[str, ThresholdIndicator]
+
+
+class AssessmentIndicator(BaseModel):
+    indicator: str
+    value: float
+    status: str  # nominal | warning | critical
+    side: str | None = None  # high | low, when not nominal
+    limit: float | None = None
+    deviation_sigma: float | None = None  # personal profile only
+    message: str
+
+
+class AssessmentDay(BaseModel):
+    date: str
+    mission_day: int
+    status: str
+    indicators: list[AssessmentIndicator]
+
+
+class CrewAssessment(BaseModel):
+    crew_id: str
+    profile: str
+    environment: str
+    baseline_environment: str
+    days_in_environment: int | None = None
+    data_source: str
+    latest_status: str
+    days: list[AssessmentDay]
+
+
 class AlertsResponse(BaseModel):
     alerts: list[Alert]
     count: int
+    profile: str | None = None
+    environment: str | None = None
 
 
 class HealthResponse(BaseModel):

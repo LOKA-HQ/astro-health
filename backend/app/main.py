@@ -15,7 +15,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api.routes import alerts, crew, environment
+from .api.routes import alerts, context, crew, environment
 from .config import API_V1_PREFIX, API_VERSION
 from .data import loader
 from .schemas.responses import HealthResponse
@@ -67,6 +67,7 @@ def create_app() -> FastAPI:
     app.include_router(crew.router, prefix=API_V1_PREFIX)
     app.include_router(alerts.router, prefix=API_V1_PREFIX)
     app.include_router(environment.router, prefix=API_V1_PREFIX)
+    app.include_router(context.router, prefix=API_V1_PREFIX)
 
     logger.info(
         "astronaut-health-api v%s ready: %d crew, %d lab records",

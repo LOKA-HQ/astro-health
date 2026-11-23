@@ -1,33 +1,55 @@
-# Python
+# ---------- Python ----------
 __pycache__/
 *.py[cod]
 *.egg-info/
 .venv/
 venv/
+env/
+build/
+dist/
 .pytest_cache/
 .ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
 
-# Node
+# ---------- Node / front-end ----------
 node_modules/
 frontend/dist/
 frontend/dist-ssr/
+.vite/
+*.tsbuildinfo
 *.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# Environment and secrets (examples stay: .env.example is committed)
+# ---------- Environment and secrets ----------
+# Real env files and keys stay out of git; the *.example files are committed.
 .env
+.env.*
+!.env.example
 *.pem
 *.key
+*.p12
 
-# Logs
+# ---------- Logs and temp ----------
 *.log
+*.tmp
+*.bak
+*.swp
 
-# OS
+# ---------- OS ----------
 .DS_Store
 Thumbs.db
+Desktop.ini
 
-# Editors
+# ---------- Editors ----------
 .vscode/
 .idea/
+*.sublime-workspace
 
-# Local-only docs
+# ---------- Local-only docs ----------
 AGENTS.md

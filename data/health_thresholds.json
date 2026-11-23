@@ -7,7 +7,7 @@
   "warning_high": 90,
   "critical_high": 100,
   "critical_low": 50,
-  "note": "NASA-STD-3001 / clinical resting range; in-flight resting HR often lower"
+  "note": "Commonly used clinical resting range 60-100 bpm. In-flight resting heart rate is about the same as pre-flight (Norsk 2015; Hughson 2017); see docs/SOURCES.md"
  },
  "sleep_hours": {
   "normal": [
@@ -16,7 +16,7 @@
   ],
   "warning_low": 6,
   "critical_low": 5,
-  "note": "NASA recommends 8h sleep opportunity; <6h impairs performance"
+  "note": "CDC: adults need at least 7 h. ISS crews are scheduled 8.5 h but average about 6 h (Barger 2014); see docs/SOURCES.md"
  },
  "sleep_quality_percent": {
   "normal": [
@@ -50,7 +50,7 @@
   "warning_high": 140,
   "critical_high": 160,
   "critical_low": 90,
-  "note": "Clinical resting range; in-flight BP trends matter more than single readings"
+  "note": "AHA categories: normal below 120/80, stage 2 hypertension from 140/90, crisis above 180/120. In-flight systolic pressure runs about 7-10 mmHg lower (Norsk 2015; Hughson 2017)"
  },
  "blood_pressure_diastolic_mmhg": {
   "normal": [
@@ -70,7 +70,7 @@
   "critical_high": 39.0,
   "warning_low": 35.5,
   "critical_low": 35.0,
-  "note": "Fever threshold 38.0 C; core temp can run slightly higher in flight"
+  "note": "Fever threshold 38.0 C. Core temperature runs about 1 C higher after roughly 75 days on the ISS (Stahn 2017); see docs/SOURCES.md"
  },
  "mood_score_1_10": {
   "normal": [

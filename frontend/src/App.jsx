@@ -1,49 +1,338 @@
-import React,{useEffect,useMemo,useRef,useState} from 'react';
-import * as THREE from 'three';
-import {Activity,AlertTriangle,ArrowDownRight,ArrowUpRight,Atom, Bell, ChevronDown, ChevronRight, CircleHelp, Clock3, Download, HeartPulse, LayoutDashboard, Menu, Microscope, Orbit, RefreshCw, Shield, ShieldAlert, Signal, Sparkles, Thermometer, Users, Wind, X} from 'lucide-react';
-import {Area,AreaChart,Bar,BarChart,CartesianGrid,Line,LineChart,ResponsiveContainer,Tooltip,XAxis,YAxis,ReferenceLine} from 'recharts';
+import React, { useEffect, useMemo, useState } from 'react';
+import { AlertTriangle } from 'lucide-react';
+import { STRINGS } from './i18n';
+import { API, get } from './lib/api';
+import Sidebar from './components/Sidebar';
+import Topbar from './components/Topbar';
+import PageHeader from './components/PageHeader';
+import AlertModal from './components/AlertModal';
+import OverviewPage from './pages/OverviewPage';
+import BodyPage from './pages/BodyPage';
+import LabsPage from './pages/LabsPage';
+import EnvironmentPage from './pages/EnvironmentPage';
 
-const API=(import.meta.env.VITE_API_BASE||'http://localhost:8000/api/v1').replace(/\/$/,'');
-const nav=[['Overview',LayoutDashboard],['Body',Activity],['Labs',Microscope],['Environment',Orbit]];
-const pretty=s=>(s||'').replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
-const fmt=(v,n=1)=>v==null?'—':Number(v).toFixed(n);
-const levelColor=l=>l==='critical'?'red':l==='warning'?'amber':'blue';
-function Card({title,sub,action,children,className=''}){return <section className={'card '+className}><div className="card-head"><div><h3>{title}</h3>{sub&&<p>{sub}</p>}</div>{action}</div>{children}</section>}
-function Pill({children,tone='blue'}){return <span className={'pill '+tone}>{children}</span>}
-function Metric({label,value,unit,delta,icon:Icon,tone='cyan',foot}){return <div className="metric"><div className="metric-top"><span>{label}</span><span className={'metric-icon '+tone}><Icon size={16}/></span></div><div className="metric-value">{value}<small>{unit}</small></div>{foot?<div className="metric-foot">{foot}</div>:<div className={'metric-delta '+(delta?.startsWith('-')?'good':'')}>{delta||'Prepared dataset'}</div>}</div>}
-function Spark({data,color='#5bd9d0'}){return <div className="spark"><ResponsiveContainer width="100%" height="100%"><AreaChart data={data}><defs><linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity={.28}/><stop offset="100%" stopColor={color} stopOpacity={0}/></linearGradient></defs><Area dataKey="v" stroke={color} strokeWidth={2} fill="url(#sparkFill)" isAnimationActive={false}/></AreaChart></ResponsiveContainer></div>}
-function BodyModel({hr=72}){const mount=useRef(null);useEffect(()=>{const el=mount.current;if(!el)return;let renderer,scene,camera,frame;try{renderer=new THREE.WebGLRenderer({alpha:true,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(el.clientWidth,el.clientHeight);el.appendChild(renderer.domElement);scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(35,el.clientWidth/el.clientHeight,.1,100);camera.position.set(0,0,7);scene.add(new THREE.AmbientLight(0x91b9ce,2));const light=new THREE.PointLight(0x52d9d0,30);light.position.set(3,4,5);scene.add(light);const mat=new THREE.MeshStandardMaterial({color:0x183b50,metalness:.25,roughness:.45,transparent:true,opacity:.9});const glow=new THREE.MeshStandardMaterial({color:0x55e0d3,emissive:0x125d62,emissiveIntensity:.6});const group=new THREE.Group();scene.add(group);
-const sphere=(x,y,z,sx,sy,sz,m)=>{let o=new THREE.Mesh(new THREE.SphereGeometry(1,24,20),m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);group.add(o);return o};
-sphere(0,1.48,0,.42,.48,.28,mat);sphere(0,.76,0,.62,.8,.3,mat);sphere(0,-.13,0,.55,.5,.29,mat);sphere(-.72,.72,0,.2,.7,.2,mat);sphere(.72,.72,0,.2,.7,.2,mat);sphere(-.25,-1.03,0,.22,.8,.21,mat);sphere(.25,-1.03,0,.22,.8,.21,mat);
-const heart=sphere(.12,.8,.32,.17,.21,.13,glow);heart.name='heart';for(let i=0;i<6;i++){let a=i*Math.PI/3;let dot=sphere(Math.cos(a)*.92,Math.sin(a)*.9,.22,.045,.045,.045,new THREE.MeshBasicMaterial({color:0x60e9de}));}
-let ring=new THREE.Mesh(new THREE.TorusGeometry(1.45,.008,8,100),new THREE.MeshBasicMaterial({color:0x2d778b,transparent:true,opacity:.55}));ring.rotation.x=1.1;group.add(ring);let t=0;const resize=()=>{if(!el.clientWidth)return;camera.aspect=el.clientWidth/el.clientHeight;camera.updateProjectionMatrix();renderer.setSize(el.clientWidth,el.clientHeight)};window.addEventListener('resize',resize);const animate=()=>{frame=requestAnimationFrame(animate);t+=.01;group.rotation.y=Math.sin(t*.25)*.18;heart.scale.set(.17*(1+.13*Math.sin(t*hr/12)),.21*(1+.13*Math.sin(t*hr/12)),.13);renderer.render(scene,camera)};animate();return()=>{cancelAnimationFrame(frame);window.removeEventListener('resize',resize);renderer.dispose();el.innerHTML=''};}catch(e){el.innerHTML='<div class="model-fallback">3D rendering unavailable<br/><span>CREW BIOMETRIC PROFILE</span></div>'} },[hr]);return <div className="body-model" ref={mount}><div className="model-tag">CREW BIOMETRIC · DEMO</div><div className="model-legend"><span>●</span> 6 monitored systems</div></div>}
-function App(){const [page,setPage]=useState('Overview'),[crew,setCrew]=useState('C001'),[data,setData]=useState({}),[loading,setLoading]=useState(true),[refreshing,setRefreshing]=useState(false),[error,setError]=useState(''),[mobile,setMobile]=useState(false),[labFilter,setLabFilter]=useState('all'),[labPage,setLabPage]=useState(0),[selectedAlert,setSelectedAlert]=useState(null);
-const get=async(path)=>{const r=await fetch(API+path);if(!r.ok)throw Error(`${r.status} ${r.statusText}`);return r.json()};
-const load=async()=>{setLoading(true);setError('');try{const [health,roster,alerts,summary,vitals,firstLabs,report,rad,weather]=await Promise.all([fetch(API.replace('/api/v1','')+'/health').then(r=>{if(!r.ok)throw Error('Health check failed');return r.json()}),get('/crew'),get('/alerts'),get(`/crew/${crew}/summary`),get(`/crew/${crew}/vitals?days=30`),get(`/crew/${crew}/labs?limit=1000&offset=0`),get(`/crew/${crew}/report`),get('/radiation'),get('/space-weather')]);const labRecords=[...firstLabs.records];for(let offset=firstLabs.records.length;offset<firstLabs.total;offset+=1000){const next=await get(`/crew/${crew}/labs?limit=1000&offset=${offset}`);labRecords.push(...next.records)}setData({health,roster:roster.crew,alerts:alerts.alerts,summary,vitals:vitals.days,labs:labRecords,report,rad,weather});setLabPage(0);}catch(e){setError(e.message+' · Make sure the FastAPI server is running on port 8000.')}finally{setLoading(false)}};
-const refreshAll=async()=>{setRefreshing(true);setError('');try{const r=await fetch(API+'/environment/refresh',{method:'POST'});if(!r.ok)throw Error(`Refresh failed: ${r.status}`);const result=await r.json();await load();const failed=Object.entries(result).filter(([,v])=>v?.status==='error').map(([k])=>k.replace('_',' '));if(failed.length)setError(`Some external sources could not refresh: ${failed.join(', ')}. Showing the last saved snapshots.`);}catch(e){setError(e.message+' · Existing cached data is still available.')}finally{setRefreshing(false)}};
-useEffect(()=>{load()},[crew]);
-const vitals=data.vitals||[],latest=vitals.at(-1)||{},alerts=data.alerts||[],critical=alerts.filter(a=>a.level==='critical').length;
-const filteredLabs=(data.labs||[]).filter(x=>labFilter==='all'?x.status!=='normal':labFilter==='baseline'?x.status.includes('baseline'):x.status===labFilter);const LAB_PAGE_SIZE=50;const labPageCount=Math.max(1,Math.ceil(filteredLabs.length/LAB_PAGE_SIZE));const visibleLabs=filteredLabs.slice(labPage*LAB_PAGE_SIZE,(labPage+1)*LAB_PAGE_SIZE);
-const trend=vitals.slice(-14).map((d,i)=>({day:d.date?.slice(5),hr:d.resting_heart_rate_bpm,spo2:d.spo2_percent,sleep:d.sleep_hours,stress:d.stress_score}));
-const flux=data.rad?.hourly_flux_pfu||[];
-const dailyFlux=useMemo(()=>{const m={};flux.forEach(x=>{let k=x.time?.slice(5,10);(m[k]??=[]).push(x.flux_pfu)});return Object.entries(m).slice(-7).map(([day,a])=>({day,flux:+(a.reduce((s,v)=>s+v,0)/a.length).toFixed(3)}))},[flux]);
-const change=(key)=>setPage(key);
-const exportReport=()=>{const r=data.report;if(!r)return;const lines=['ASTRO HEALTH · WEEKLY CREW REPORT',`Crew: ${crew}`,`Period: ${r.period}`,`Status: ${r.overall_status}`,'',`Avg resting HR: ${r.vitals_7d.avg_resting_hr} bpm`,`Avg sleep: ${r.vitals_7d.avg_sleep_hours} h`,`Avg stress: ${r.vitals_7d.avg_stress}`,`Min SpO2: ${r.vitals_7d.min_spo2}%`,`Flagged labs: ${r.labs.flagged_total}`];const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/plain'}));a.download=`astro-health-${crew}-weekly-report.txt`;a.click();URL.revokeObjectURL(a.href)};
-return <div className="app-shell"><aside className={'sidebar '+(mobile?'open':'')}><div className="brand"><div className="brand-mark"><Orbit size={22}/></div><div><b>ASTRO<span>HEALTH</span></b><small>MISSION CONTROL / 01</small></div><button className="close-mobile" onClick={()=>setMobile(false)}><X/></button></div><div className="mission-label">MISSION DASHBOARD</div><nav>{nav.map(([name,Icon])=><button key={name} className={page===name?'active':''} onClick={()=>{change(name);setMobile(false)}}><Icon size={18}/>{name}{page===name&&<i/>}</button>)}</nav><div className="side-bottom"><div className="connection"><span className="pulse-dot"/><div><b>Systems operational</b><small>API · CONNECTED</small></div></div><div className="mission-card"><div className="mission-icon"><Atom size={17}/></div><div><b>MARS TRANSIT</b><small>DEEP SPACE MISSION</small></div><span>↗</span><small>MISSION PROFILE <strong>DEMO</strong></small></div><div className="profile"><div className="avatar">MC</div><div><b>Mission Control</b><small>Flight Surgeon</small></div><ChevronDown size={15}/></div></div></aside>
-<main className="main"><header className="topbar"><button className="mobile-menu" onClick={()=>setMobile(true)}><Menu/></button><div className="breadcrumb">MISSION CONTROL <ChevronRight size={13}/> <b>{page.toUpperCase()}</b></div><div className="top-actions"><div className="utc"><span className="pulse-dot"/> DATA SNAPSHOT <b>· UTC</b></div><button className="icon-btn" title="Refresh data" onClick={refreshAll} disabled={refreshing}><RefreshCw size={17}/></button><button className="icon-btn notification" onClick={()=>setPage('Overview')}><Bell size={17}/><i/></button><div className="top-avatar">MC</div></div></header>
-<div className="content"><div className="page-title"><div><div className="eyebrow">ASTRO HEALTH / CREW MONITORING</div><h1>{page==='Overview'?'Crew health overview':page==='Body'?'Biometric monitoring':page==='Labs'?'Clinical laboratory':'Space environment'}</h1><p>{page==='Overview'?'Crew health overview using prepared research datasets and demonstration vitals.':page==='Body'?'Physiological indicators · synthetic demonstration series, not live wearable data.':page==='Labs'?'Clinical results, reference ranges and weekly crew assessment.':'Radiation exposure, solar activity and environmental risk.'}</p></div><div className="title-actions"><div className="crew-select"><Users size={15}/><select value={crew} onChange={e=>setCrew(e.target.value)}>{(data.roster||['C001','C002','C003','C004'].map(crew_id=>({crew_id}))).map(c=><option key={c.crew_id} value={c.crew_id}>{c.crew_id} · Crew member</option>)}</select><ChevronDown size={14}/></div><button className="refresh-btn" onClick={refreshAll} disabled={refreshing}><RefreshCw size={14}/> {refreshing?'Refreshing…':'Refresh sources'}</button></div></div>
-{error&&<div className="error"><AlertTriangle size={16}/><span>API connection unavailable: {error}</span><button onClick={load}>Retry</button></div>}
-{loading&&!data.summary?<div className="loading"><div className="loader"/><span>SYNCING MISSION TELEMETRY…</span></div>:<>
-{page==='Overview'&&<><div className="status-banner"><div className="status-symbol"><Shield size={20}/></div><div><b>CREW STATUS · {data.report?.overall_status==='attention'?'ATTENTION REQUIRED':'NOMINAL'}</b><small>Biometric systems synchronized · Last data point {latest.date||'—'}</small></div><div className="banner-right"><span className="pulse-dot"/> ALL SYSTEMS {data.report?.overall_status==='attention'?'MONITORING':'NOMINAL'}</div></div>
-<div className="metric-grid"><Metric label="CREW MEMBERS" value="04" unit="/ 04" icon={Users} foot="All members monitored"/><Metric label="CRITICAL ALERTS" value={critical} unit=" active" icon={ShieldAlert} tone="red" delta={`${alerts.length} total alerts`}/><Metric label="RESTING HEART RATE" value={latest.resting_heart_rate_bpm||'—'} unit=" bpm" icon={HeartPulse} delta="Latest synthetic reading"/><Metric label="O₂ SATURATION" value={fmt(latest.spo2_percent,1)} unit="%" icon={Activity} delta="Peripheral oxygen saturation"/></div>
-<div className="overview-grid"><Card title="Crew health trends" sub="Last 7 days · compared with previous 7 days" action={<Pill>7 DAY WINDOW</Pill>}><div className="trend-legend"><span><i className="dot cyan"/> Heart rate</span><span><i className="dot violet"/> SpO₂</span></div><div className="chart large-chart"><ResponsiveContainer width="100%" height="100%"><LineChart data={trend}><CartesianGrid strokeDasharray="3 5" stroke="#1d2b3b"/><XAxis dataKey="day" tick={{fill:'#77889a',fontSize:11}} axisLine={false} tickLine={false}/><YAxis yAxisId="left" tick={{fill:'#77889a',fontSize:11}} axisLine={false} tickLine={false}/><YAxis yAxisId="right" orientation="right" domain={[90,100]} tick={{fill:'#77889a',fontSize:11}} axisLine={false} tickLine={false}/><Tooltip contentStyle={{background:'#111d2c',border:'1px solid #26384c',borderRadius:10,color:'#e8f2fa'}}/><Line yAxisId="left" type="monotone" dataKey="hr" name="Heart rate (bpm)" stroke="#55d8d0" strokeWidth={2.5} dot={false}/><Line yAxisId="right" type="monotone" dataKey="spo2" name="SpO₂ (%)" stroke="#9d8bff" strokeWidth={2.5} dot={false}/></LineChart></ResponsiveContainer></div><div className="chart-foot"><span>PREVIOUS 7 DAYS <b>—</b></span><span>RECENT 7 DAYS <b>{trend.length?trend.at(-1).day:'—'}</b></span><small>Illustrative daily vitals are synthetic demo data.</small></div></Card>
-<Card title="Radiation environment" sub="NOAA GOES-18 · ≥10 MeV proton flux"><div className="radiation-read"><div><div className="big-reading">{fmt(data.rad?.latest_flux_pfu,3)} <small>pfu</small></div><Pill tone="green">{data.rad?.latest_status||'NO DATA'}</Pill></div><div className="radiation-icon"><Atom size={27}/></div></div><Spark data={dailyFlux.map(x=>({v:x.flux}))}/><div className="radiation-meta"><span>7D PEAK <b>{fmt(data.rad?.peak_7d_flux_pfu,3)} pfu</b></span><span>STORM SCALE <b>Below S1</b></span></div><div className="tiny-note">NOAA SWPC source snapshot. Dose references are contextual, not live crew dosimetry.</div></Card></div>
-<div className="bottom-grid"><Card title="Priority alerts" sub={`${alerts.length} active signals · sorted by severity`} action={<button className="text-btn" onClick={()=>setPage('Labs')}>View analysis <ChevronRight size={14}/></button>}><div className="alert-list">{alerts.slice(0,4).map((a,i)=><button className="alert-row" key={i} onClick={()=>setSelectedAlert(a)}><span className={'alert-symbol '+levelColor(a.level)}>{a.level==='critical'?<AlertTriangle size={15}/>:a.type==='radiation'?<Atom size={15}/>:<Activity size={15}/>}</span><span className="alert-copy"><b>{a.indicator?pretty(a.indicator):pretty(a.type)+' alert'}</b><small>{a.crew_id||'GLOBAL'} · {a.timepoint||a.date||'Snapshot'}</small></span><Pill tone={levelColor(a.level)}>{a.level}</Pill><ChevronRight size={15} className="muted"/></button>)}</div></Card><Card title="Crew readiness" sub="Individual health status"><div className="readiness-list">{(data.roster||[]).map((c,i)=><div className="readiness-row" key={c.crew_id}><div className="mini-avatar">{String(i+1).padStart(2,'0')}</div><div className="readiness-name"><b>{c.crew_id}</b><small>{c.lab_records.toLocaleString()} lab records</small></div><div className="readiness-stat"><b>{c.flagged}</b><small>flagged</small></div><Pill tone={c.clinical_out_of_range?'amber':'green'}>{c.clinical_out_of_range?'Review':'Nominal'}</Pill></div>)}</div></Card></div></>}
-{page==='Body'&&<><div className="body-layout"><Card title="Human telemetry model" sub="Interactive 3D anatomical overview · rotating view"><BodyModel hr={latest.resting_heart_rate_bpm||72}/><div className="system-points">{['Cardiovascular','Respiratory','Thermoregulation','Sleep cycle','Stress response','Activity'].map((x,i)=><span key={x}><i className={i===0?'active':''}/>{x}</span>)}</div></Card><div className="body-side"><div className="body-status"><span className="pulse-dot"/> DEMO VITALS <small>{latest.date}</small></div><Metric label="RESTING HEART RATE" value={latest.resting_heart_rate_bpm||'—'} unit=" bpm" icon={HeartPulse}/><Metric label="BLOOD OXYGEN" value={fmt(latest.spo2_percent)} unit="%" icon={Activity}/><Metric label="BODY TEMPERATURE" value={fmt(latest.body_temperature_c,1)} unit="°C" icon={Thermometer}/><Metric label="SLEEP DURATION" value={fmt(latest.sleep_hours,1)} unit=" hrs" icon={Clock3}/></div></div><div className="metric-grid four"><Metric label="BLOOD PRESSURE" value={`${latest.blood_pressure_systolic_mmhg||'—'}/${latest.blood_pressure_diastolic_mmhg||'—'}`} unit=" mmHg" icon={Activity}/><Metric label="STRESS INDEX" value={latest.stress_score??'—'} unit="/ 100" icon={Wind}/><Metric label="DAILY STEPS" value={latest.steps?.toLocaleString()||'—'} unit=" steps" icon={Activity}/><Metric label="MOOD SCORE" value={latest.mood_score??'—'} unit="/ 10" icon={Sparkles}/></div><Card title="30-day physiological trends" sub="Daily readings · synthetic demo data"><div className="chart tall-chart"><ResponsiveContainer width="100%" height="100%"><LineChart data={vitals}><CartesianGrid strokeDasharray="3 5" stroke="#1d2b3b"/><XAxis dataKey="date" tick={{fill:'#77889a',fontSize:10}} tickFormatter={x=>x.slice(5)} axisLine={false} tickLine={false}/><YAxis tick={{fill:'#77889a',fontSize:10}} axisLine={false} tickLine={false}/><Tooltip contentStyle={{background:'#111d2c',border:'1px solid #26384c',borderRadius:10}}/><Line dataKey="resting_heart_rate_bpm" name="Heart rate" stroke="#55d8d0" dot={false} strokeWidth={2}/><Line dataKey="sleep_hours" name="Sleep hours" stroke="#9d8bff" dot={false} strokeWidth={2}/></LineChart></ResponsiveContainer></div><div className="tiny-note">Vitals are synthetic demonstration data; not real-time astronaut wearable telemetry.</div></Card></>}
-{page==='Labs'&&<><div className="lab-summary"><Metric label="TOTAL LAB RECORDS" value={(data.summary?.lab_records||0).toLocaleString()} icon={Microscope}/><Metric label="FLAGGED RESULTS" value={data.summary?.flagged_total||0} icon={AlertTriangle} tone="amber"/><Metric label="CLINICAL OUT OF RANGE" value={data.summary?.clinical_out_of_range||0} icon={Activity} tone="red"/><div className="report-tile"><div><b>WEEKLY CREW REPORT</b><small>{data.report?.period||'Latest 7-day window'}</small></div><button onClick={exportReport}><Download size={15}/> Export</button></div></div><Card title="Out-of-range laboratory results" sub="NASA OSDR clinical records · reference intervals from source dataset" action={<select className="filter-select" value={labFilter} onChange={e=>{setLabFilter(e.target.value);setLabPage(0)}}><option value="all">All flagged</option><option value="high">High</option><option value="low">Low</option><option value="baseline">Baseline deviation</option></select>}><div className="table-wrap"><table><thead><tr><th>BIOMARKER</th><th>PANEL</th><th>TIMEPOINT</th><th>RESULT</th><th>REFERENCE RANGE</th><th>STATUS</th></tr></thead><tbody>{visibleLabs.map((x,i)=><tr key={`${x.study}-${x.crew}-${x.indicator}-${x.timepoint}-${i}`}><td><b>{pretty(x.indicator)}</b><small>{x.study} · {x.phase}</small></td><td>{pretty(x.panel)}</td><td>{x.timepoint}</td><td className="result">{x.value} <small>{x.unit.replaceAll('_',' ')}</small></td><td>{x.ref_min??'—'} – {x.ref_max??'—'}</td><td><Pill tone={x.status==='high'?'red':x.status==='low'?'amber':'blue'}>{pretty(x.status)}</Pill></td></tr>)}</tbody></table>{filteredLabs.length===0&&<div className="empty">No matching results for this crew member.</div>}</div><div className="lab-pagination"><button disabled={labPage===0} onClick={()=>setLabPage(p=>Math.max(0,p-1))}>Previous</button><span>Page {labPage+1} of {labPageCount}</span><button disabled={labPage+1>=labPageCount} onClick={()=>setLabPage(p=>Math.min(labPageCount-1,p+1))}>Next</button></div><div className="table-note">Showing {filteredLabs.length===0?0:labPage*LAB_PAGE_SIZE+1}–{Math.min((labPage+1)*LAB_PAGE_SIZE,filteredLabs.length)} of {filteredLabs.length.toLocaleString()} matching records. High/low are compared with clinical reference ranges; baseline deviations are reported separately.</div></Card><div className="report-grid"><Card title="7-day health summary" sub={`Crew ${crew} · ${data.report?.period}`}><div className="report-stats">{Object.entries(data.report?.vitals_7d||{}).map(([k,v])=><div key={k}><small>{pretty(k.replace('avg_','Average '))}</small><b>{typeof v==='number'?fmt(v):v}{k.includes('hr')?' bpm':k.includes('sleep')?' h':k.includes('spo2')?'%':''}</b></div>)}</div></Card><Card title="Most flagged indicators" sub="Across selected crew member"><div className="flag-bars">{(data.summary?.top_flagged_indicators||[]).slice(0,6).map(x=><div key={x.indicator}><span>{pretty(x.indicator)}</span><div><i style={{width:`${Math.min(100,x.count*12)}%`}}/></div><b>{x.count}</b></div>)}</div></Card></div></>}
-{page==='Environment'&&<><div className="env-status"><div className="env-status-icon"><Shield size={22}/></div><div><b>RADIATION ENVIRONMENT · {data.rad?.latest_status||'NO DATA'}</b><small>NOAA GOES-18 integral proton flux · ≥10 MeV channel</small></div><div className="env-reading">{fmt(data.rad?.latest_flux_pfu,3)} <small>pfu</small></div></div><div className="overview-grid"><Card title="Proton flux" sub="7-day trend · hourly GOES-18 readings" action={<Pill>NOAA SWPC</Pill>}><div className="chart tall-chart"><ResponsiveContainer width="100%" height="100%"><AreaChart data={dailyFlux}><defs><linearGradient id="fluxFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#58d7cf" stopOpacity={.3}/><stop offset="100%" stopColor="#58d7cf" stopOpacity={0}/></linearGradient></defs><CartesianGrid strokeDasharray="3 5" stroke="#1d2b3b"/><XAxis dataKey="day" tick={{fill:'#77889a',fontSize:11}} axisLine={false} tickLine={false}/><YAxis tick={{fill:'#77889a',fontSize:11}} axisLine={false} tickLine={false}/><Tooltip contentStyle={{background:'#111d2c',border:'1px solid #26384c',borderRadius:10}}/><ReferenceLine y={10} stroke="#e9b65b" strokeDasharray="4 4" label={{value:'S1 threshold',fill:'#e9b65b',fontSize:10}}/><Area dataKey="flux" name="Mean proton flux (pfu)" stroke="#58d7cf" fill="url(#fluxFill)" strokeWidth={2}/></AreaChart></ResponsiveContainer></div><div className="tiny-note">S1 minor solar radiation storm threshold begins at 10 pfu for ≥10 MeV protons.</div></Card><Card title="NOAA solar radiation storm scale" sub="Integral proton flux thresholds"><div className="scale-list">{Object.entries(data.rad?.noaa_s_scale_thresholds_pfu||{}).map(([k,v],i)=><div key={k}><span className={'scale-dot s'+i}/><span>{k}</span><b>{v.toLocaleString()} pfu</b></div>)}</div><div className="scale-current"><span>CURRENT LEVEL</span><b>{data.rad?.latest_status||'No data'}</b></div></Card></div><Card title="DONKI space-weather events" sub={`NASA DONKI · ${data.weather?.recent_30d?.window||'Recent 30 days'}`} action={<Pill tone="blue">NASA DONKI</Pill>}><div className="event-counts"><div><b>{data.weather?.recent_30d?.sep_events??'—'}</b><small>SEP EVENTS</small></div><div><b>{data.weather?.recent_30d?.cme_events??'—'}</b><small>CME EVENTS</small></div><div><b>{data.weather?.recent_30d?.gst_events??'—'}</b><small>GEOMAGNETIC STORMS</small></div><div><b>{data.weather?.recent_30d?.strongest_gst?.maxKp??'—'}</b><small>STRONGEST KP</small></div></div><div className="event-list">{(data.weather?.recent_30d?.cmes||[]).slice(-5).reverse().map((e,i)=><div key={i}><span className="event-icon"><Sparkles size={15}/></span><div><b>Coronal mass ejection</b><small>{e.startTime} · {e.sourceLocation||'Source location unavailable'}</small></div><strong>{e.speed_kms?`${e.speed_kms} km/s`:'Speed N/A'}</strong></div>)}</div></Card><Card title="Published reference dose rates" sub="Contextual literature values · not live dosimetry"><div className="dose-grid">{Object.entries(data.rad?.reference_dose_rates_published||{}).filter(([k])=>k!=='note').map(([k,v])=><div key={k}><small>{pretty(k)}</small><b>{v}</b></div>)}</div><div className="tiny-note">{data.rad?.reference_dose_rates_published?.note}</div></Card></>}
-</>}
-<footer><span>ASTRO HEALTH <i>·</i> MARS TRANSIT MONITORING</span><span>DATA SOURCES: NASA OSDR · NASA DONKI · NOAA SWPC <i>·</i> {data.health?.lab_records?.toLocaleString()||'—'} LAB RECORDS</span></footer></div></main>
-{selectedAlert&&<div className="modal-backdrop" onClick={()=>setSelectedAlert(null)}><div className="alert-modal" onClick={e=>e.stopPropagation()}><button className="modal-close" onClick={()=>setSelectedAlert(null)}><X size={18}/></button><Pill tone={levelColor(selectedAlert.level)}>{selectedAlert.level}</Pill><h2>{selectedAlert.indicator?pretty(selectedAlert.indicator):pretty(selectedAlert.type)+' alert'}</h2><p>{selectedAlert.message}</p><div className="modal-meta"><span>CREW</span><b>{selectedAlert.crew_id||'GLOBAL'}</b><span>TIMEPOINT</span><b>{selectedAlert.timepoint||selectedAlert.date||'Snapshot'}</b></div></div></div>}
-</div>}
+// App shell: owns the dashboard state, loads all data from the backend and
+// hands it to the page components. Shared UI lives in components/, one
+// component per page lives in pages/, and pure helpers live in lib/.
+function App() {
+  const [page, setPage] = useState('Overview');
+  const [crew, setCrew] = useState('C001');
+  const [data, setData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState('');
+  const [mobile, setMobile] = useState(false);
+  const [labFilter, setLabFilter] = useState('all');
+  const [labPage, setLabPage] = useState(0);
+  const [selectedAlert, setSelectedAlert] = useState(null);
+  const [lang, setLang] = useState(() => localStorage.getItem('astro-lang') || 'en');
+  const [theme, setTheme] = useState(() => localStorage.getItem('astro-theme') || 'dark');
+  const [profile, setProfile] = useState(() => localStorage.getItem('astro-profile') || 'generic');
+  const [environment, setEnvironment] = useState(
+    () => localStorage.getItem('astro-env') || 'earth_ground',
+  );
+  const t = STRINGS[lang];
+
+  // Language: html lang/dir attributes + persistence.
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    localStorage.setItem('astro-lang', lang);
+  }, [lang]);
+
+  // Theme: data-theme attribute, persistence, and the matching favicon.
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('astro-theme', theme);
+    const icon = document.querySelector("link[rel='icon']");
+    if (icon) icon.href = theme === 'light' ? '/logo-light.svg' : '/logo.svg';
+  }, [theme]);
+
+  useEffect(() => {
+    localStorage.setItem('astro-profile', profile);
+  }, [profile]);
+
+  useEffect(() => {
+    localStorage.setItem('astro-env', environment);
+  }, [environment]);
+
+  // Chart colors follow the theme (recharts reads plain values, not CSS).
+  const grid = theme === 'light' ? '#d7e4e9' : '#1d2b3b';
+  const tick = theme === 'light' ? '#6b8290' : '#77889a';
+  const tipBg = theme === 'light' ? '#ffffff' : '#111d2c';
+  const tipBorder = theme === 'light' ? '#c9dbe1' : '#26384c';
+  const tipColor = theme === 'light' ? '#12272f' : '#e8f2fa';
+
+  // Load every resource the dashboard needs. Alerts, thresholds, assessment
+  // and forecast are judged by the selected profile and environment.
+  const load = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const ctx = `profile=${profile}&environment=${environment}`;
+      const [
+        health,
+        roster,
+        alerts,
+        summary,
+        vitals,
+        firstLabs,
+        report,
+        rad,
+        weather,
+        thresholds,
+        assessment,
+        forecast,
+      ] = await Promise.all([
+        fetch(API.replace('/api/v1', '') + '/health').then((r) => {
+          if (!r.ok) throw Error(t.errHealth);
+          return r.json();
+        }),
+        get('/crew'),
+        get(`/alerts?${ctx}`),
+        get(`/crew/${crew}/summary`),
+        get(`/crew/${crew}/vitals?days=30`),
+        get(`/crew/${crew}/labs?limit=1000&offset=0`),
+        get(`/crew/${crew}/report`),
+        get('/radiation'),
+        get('/space-weather'),
+        get(`/crew/${crew}/thresholds?${ctx}`),
+        get(`/crew/${crew}/assessment?${ctx}&days=7`),
+        get(`/crew/${crew}/forecast?${ctx}&horizon=7`),
+      ]);
+      // Labs are paginated (max 1000 per page); fetch the rest for the table.
+      const labRecords = [...firstLabs.records];
+      for (let offset = firstLabs.records.length; offset < firstLabs.total; offset += 1000) {
+        const next = await get(`/crew/${crew}/labs?limit=1000&offset=${offset}`);
+        labRecords.push(...next.records);
+      }
+      setData({
+        health,
+        roster: roster.crew,
+        alerts: alerts.alerts,
+        summary,
+        vitals: vitals.days,
+        labs: labRecords,
+        report,
+        rad,
+        weather,
+        thresholds,
+        assessment,
+        forecast,
+      });
+      setLabPage(0);
+    } catch (e) {
+      setError(e.message + ' · ' + t.errServer);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Refresh the cached space-weather snapshots, then reload everything.
+  const refreshAll = async () => {
+    setRefreshing(true);
+    setError('');
+    try {
+      const r = await fetch(API + '/environment/refresh', { method: 'POST' });
+      if (!r.ok) throw Error(t.errRefresh + ' ' + r.status);
+      const result = await r.json();
+      await load();
+      const failed = Object.entries(result)
+        .filter(([, v]) => v?.status === 'error')
+        .map(([k]) => k.replace('_', ' '));
+      if (failed.length) setError(t.errPartial + ' ' + failed.join(', ') + '. ' + t.errSnapshots);
+    } catch (e) {
+      setError(e.message + ' · ' + t.errCached);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, [crew, profile, environment]);
+
+  // Derived values shared by the pages.
+  const vitals = data.vitals || [];
+  const latest = vitals.at(-1) || {};
+  const alerts = data.alerts || [];
+  const critical = alerts.filter((a) => a.level === 'critical').length;
+  const assessLatest = (data.assessment?.days || []).at(-1);
+  const assessOff = assessLatest?.indicators.filter((i) => i.status !== 'nominal') || [];
+  const trend = vitals.slice(-14).map((d) => ({
+    day: d.date?.slice(5),
+    hr: d.resting_heart_rate_bpm,
+    spo2: d.spo2_percent,
+    sleep: d.sleep_hours,
+    stress: d.stress_score,
+  }));
+  const flux = data.rad?.hourly_flux_pfu || [];
+  const dailyFlux = useMemo(() => {
+    const m = {};
+    flux.forEach((x) => {
+      const k = x.time?.slice(5, 10);
+      (m[k] ??= []).push(x.flux_pfu);
+    });
+    return Object.entries(m)
+      .slice(-7)
+      .map(([day, a]) => ({ day, flux: +(a.reduce((s, v) => s + v, 0) / a.length).toFixed(3) }));
+  }, [flux]);
+
+  // Download the weekly report as a plain-text file.
+  const exportReport = () => {
+    const r = data.report;
+    if (!r) return;
+    const lines = [
+      t.reportTitle,
+      `${t.crew} ${crew}`,
+      `${t.reportPeriod} ${r.period}`,
+      `${t.reportStatus} ${r.overall_status}`,
+      '',
+      `${t.reportAvgHr} ${r.vitals_7d.avg_resting_hr} bpm`,
+      `${t.reportAvgSleep} ${r.vitals_7d.avg_sleep_hours} h`,
+      `${t.reportAvgStress} ${r.vitals_7d.avg_stress}`,
+      `${t.reportMinSpo2} ${r.vitals_7d.min_spo2}%`,
+      `${t.reportFlaggedLabs} ${r.labs.flagged_total}`,
+    ];
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/plain' }));
+    a.download = `astro-health-${crew}-weekly-report.txt`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  // Changing the lab filter resets the table to the first page.
+  const handleLabFilterChange = (value) => {
+    setLabFilter(value);
+    setLabPage(0);
+  };
+
+  return (
+    <div className="app-shell">
+      <Sidebar
+        t={t}
+        page={page}
+        mobile={mobile}
+        onNavigate={setPage}
+        onClose={() => setMobile(false)}
+      />
+      <main className="main">
+        <Topbar
+          t={t}
+          page={page}
+          theme={theme}
+          lang={lang}
+          refreshing={refreshing}
+          onRefresh={refreshAll}
+          onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          onToggleLang={() => setLang(lang === 'en' ? 'ar' : 'en')}
+          onOpenMenu={() => setMobile(true)}
+          onGoOverview={() => setPage('Overview')}
+        />
+        <div className="content">
+          <PageHeader
+            t={t}
+            page={page}
+            data={data}
+            crew={crew}
+            profile={profile}
+            environment={environment}
+            refreshing={refreshing}
+            onCrewChange={setCrew}
+            onProfileChange={setProfile}
+            onEnvironmentChange={setEnvironment}
+            onRefresh={refreshAll}
+          />
+          {error && (
+            <div className="error">
+              <AlertTriangle size={16} />
+              <span>
+                {t.apiUnavailable} {error}
+              </span>
+              <button onClick={load}>{t.retry}</button>
+            </div>
+          )}
+          {loading && !data.summary ? (
+            <div className="loading">
+              <div className="loader" />
+              <span>{t.syncing}</span>
+            </div>
+          ) : (
+            <>
+              {page === 'Overview' && (
+                <OverviewPage
+                  t={t}
+                  data={data}
+                  latest={latest}
+                  trend={trend}
+                  alerts={alerts}
+                  critical={critical}
+                  dailyFlux={dailyFlux}
+                  assessLatest={assessLatest}
+                  assessOff={assessOff}
+                  grid={grid}
+                  tick={tick}
+                  tipBg={tipBg}
+                  tipBorder={tipBorder}
+                  tipColor={tipColor}
+                  onSelectAlert={setSelectedAlert}
+                  onGoLabs={() => setPage('Labs')}
+                />
+              )}
+              {page === 'Body' && (
+                <BodyPage
+                  t={t}
+                  data={data}
+                  latest={latest}
+                  vitals={vitals}
+                  theme={theme}
+                  environment={environment}
+                  profile={profile}
+                  grid={grid}
+                  tick={tick}
+                  tipBg={tipBg}
+                  tipBorder={tipBorder}
+                />
+              )}
+              {page === 'Labs' && (
+                <LabsPage
+                  t={t}
+                  data={data}
+                  crew={crew}
+                  labFilter={labFilter}
+                  labPage={labPage}
+                  onLabFilterChange={handleLabFilterChange}
+                  onLabPageChange={setLabPage}
+                  onExportReport={exportReport}
+                />
+              )}
+              {page === 'Environment' && (
+                <EnvironmentPage
+                  t={t}
+                  data={data}
+                  dailyFlux={dailyFlux}
+                  grid={grid}
+                  tick={tick}
+                  tipBg={tipBg}
+                  tipBorder={tipBorder}
+                />
+              )}
+            </>
+          )}
+          <footer>
+            <span>{t.footerLeft}</span>
+            <span>
+              {t.footerRight} <i>·</i> {data.health?.lab_records?.toLocaleString() || '—'}{' '}
+              {t.labRecordsUpper}
+            </span>
+          </footer>
+        </div>
+      </main>
+      {selectedAlert && (
+        <AlertModal t={t} alert={selectedAlert} onClose={() => setSelectedAlert(null)} />
+      )}
+    </div>
+  );
+}
+
 export default App;

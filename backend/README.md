@@ -26,16 +26,22 @@ backend/
       crew.py               # crew summaries, lab queries, reports
       alerts.py             # alert aggregation (labs + vitals + radiation)
       environment.py        # live DONKI / GOES refresh
+      personalization.py    # personal baselines, effective thresholds, assessment
+      environments.py       # location awareness: shifts, evidence, detection
+      forecast.py           # 7-day vitals trend forecast
     schemas/
       responses.py          # Pydantic response models (OpenAPI docs)
     api/
-      deps.py               # shared dependencies (crew validation)
+      deps.py               # shared dependencies (crew id, threshold query params)
       routes/
         crew.py             # /api/v1/crew/*
         alerts.py           # /api/v1/alerts
+        context.py          # /api/v1/environments, /environments/detect
         environment.py      # /api/v1/space-weather, /radiation, ...
   tests/
-    test_api.py             # API smoke tests (pytest)
+    test_api.py             # API tests (pytest)
+    test_personalization.py # personal / environment-aware thresholds
+    test_forecast.py        # trend forecast
     test_security.py        # light security tests (pytest)
 ```
 
@@ -84,13 +90,16 @@ enough for the demo.
 .venv/bin/ruff format --check app tests run.py
 ```
 
-23 tests, all passing: 17 API tests (every endpoint, filters,
-pagination, 404/422 handling, vitals determinism, alert sorting,
-per-crew alerts, vitals `days` param, new vitals indicators) + 6 light security tests
-(traversal, injection-style input, error-response hygiene, method
+The suite covers every endpoint (filters, pagination, 404/422 handling,
+vitals determinism, alert sorting, per-crew alerts, the `profile` /
+`environment` / `baseline_environment` / `days_in_environment` options),
+unit tests for the personal-baseline, environment and forecast logic
+(including checks that every shift cites a source and that the statistical
+constants and absolute limits match `docs/SOURCES.md`), and light security
+tests (traversal, injection-style input, error-response hygiene, method
 checks). The live refresh endpoint is not covered by pytest because it
-calls external APIs; it was verified live instead. Dependencies are
-audited with `pip-audit` (no known vulnerabilities as of Nov 14, 2026).
+calls external APIs. GitHub Actions runs pytest and ruff on every push.
+`TEST_RESULTS.md` is a dated record of an earlier run.
 
 ## Docker
 
@@ -110,9 +119,14 @@ docker run -p 8000:8000 astro-health
 | GET | `/api/v1/crew/{id}/summary` | Per-crew summary (labs + vitals) |
 | GET | `/api/v1/crew/{id}/labs?panel=&timepoint=&status=&flagged_only=&limit=&offset=` | Lab records, filterable and paginated |
 | GET | `/api/v1/crew/{id}/vitals?days=` | Vitals time series, last N days (1-30, default 30; synthetic, labeled) |
+| GET | `/api/v1/crew/{id}/thresholds?profile=&environment=&baseline_environment=&days_in_environment=` | Limits in force: generic vs personal, adjusted for the environment |
+| GET | `/api/v1/crew/{id}/assessment?days=&profile=&environment=...` | Day-by-day nominal / warning / critical status |
+| GET | `/api/v1/crew/{id}/forecast?horizon=&profile=&environment=...` | Vitals trend forecast (horizon 1-14 days, default 7) |
 | GET | `/api/v1/crew/{id}/report` | Weekly-style report for one crew member |
-| GET | `/api/v1/crew/{id}/alerts` | Alerts for one crew member (lab + vitals, most severe first) |
-| GET | `/api/v1/alerts` | All alerts (labs + vitals + radiation) |
+| GET | `/api/v1/crew/{id}/alerts?profile=&environment=...` | Alerts for one crew member (lab + vitals, most severe first) |
+| GET | `/api/v1/alerts?profile=&environment=...` | All alerts (labs + vitals + radiation) |
+| GET | `/api/v1/environments` | Environments, their shifts and the evidence behind them |
+| GET | `/api/v1/environments/detect?body=&altitude_km=&accel_g=` | Infer the environment from telemetry |
 | GET | `/api/v1/space-weather` | DONKI events and radiation alert mapping |
 | GET | `/api/v1/radiation` | GOES proton flux, S-scale, dose references |
 | GET | `/api/v1/thresholds` | Alert thresholds |
@@ -132,7 +146,11 @@ Crew IDs: `C001`-`C004`. Timepoints: `L-92, L-44, L-3, R+1, R+45, R+82, R+194`
   are generated deterministically in `app/data/vitals.py`. Each day
   carries resting HR, sleep, steps, SpO2, stress, blood pressure,
   body temperature, and mood.
-- CORS is open for the hackathon demo. Restrict it before any real use.
+- The `profile`, `environment`, `baseline_environment` and
+  `days_in_environment` query parameters are shared by the alerts,
+  thresholds, assessment and forecast endpoints (see `api/deps.py`). With none
+  of them the original fixed thresholds apply. How the limits are built, and
+  the evidence behind every shift, is in `../docs/SOURCES.md`.
 
 ## Browser CORS configuration
 

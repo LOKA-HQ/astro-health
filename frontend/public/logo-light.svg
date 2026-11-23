@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <clipPath id="planetClip"><circle cx="32" cy="32" r="10"/></clipPath>
+  </defs>
+  <rect x="0.5" y="0.5" width="63" height="63" rx="15" fill="#e8f4f2" stroke="#b8ddd8" stroke-width="1"/>
+  <ellipse cx="32" cy="32" rx="25" ry="9.5" fill="none" stroke="#0d9488" stroke-width="2" opacity="0.85" transform="rotate(-24 32 32)"/>
+  <circle cx="32" cy="32" r="10" fill="#0d9488"/>
+  <polyline points="12,32 22,32 26,23 31,41 35,29 38,32 52,32" fill="none" stroke="#0f2a33" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="12,32 22,32 26,23 31,41 35,29 38,32 52,32" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#planetClip)"/>
+  <circle cx="54" cy="22" r="2.6" fill="#0d9488"/>
+</svg>

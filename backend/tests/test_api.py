@@ -213,3 +213,124 @@ def test_vitals_new_indicators():
     r = client.get("/api/v1/crew/C001/report").json()["vitals_7d"]
     assert 36.0 <= r["avg_body_temperature_c"] <= 38.0
     assert 1 <= r["avg_mood_score"] <= 10
+
+
+def test_crew_forecast():
+    r = client.get("/api/v1/crew/C001/forecast")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["crew_id"] == "C001"
+    assert body["horizon_days"] == 7
+    assert body["data_source"] == "synthetic"
+    assert body["overall_risk"] in ("low", "moderate", "high")
+    assert len(body["indicators"]) == 8
+    for ind in body["indicators"]:
+        assert ind["risk"] in ("low", "moderate", "high")
+        assert ind["direction"] in ("high", "low")
+
+
+def test_crew_forecast_horizon_validation_and_404():
+    assert client.get("/api/v1/crew/C001/forecast?horizon=14").status_code == 200
+    assert client.get("/api/v1/crew/C001/forecast?horizon=0").status_code == 422
+    assert client.get("/api/v1/crew/C001/forecast?horizon=15").status_code == 422
+    assert client.get("/api/v1/crew/C999/forecast").status_code == 404
+
+
+def test_default_alerts_unchanged_and_echo_profile():
+    body = client.get("/api/v1/alerts").json()
+    assert body["count"] == 48
+    assert body["profile"] == "generic"
+    assert body["environment"] == "earth_ground"
+
+
+def test_alerts_accept_personal_profile_and_environment():
+    r = client.get("/api/v1/alerts?profile=personal&environment=iss")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["profile"] == "personal"
+    assert body["environment"] == "iss"
+    r = client.get("/api/v1/crew/C002/alerts?profile=personal")
+    assert r.status_code == 200
+    assert {a["crew_id"] for a in r.json()["alerts"]} == {"C002"}
+
+
+def test_crew_thresholds_personal_and_environment():
+    r = client.get("/api/v1/crew/C001/thresholds?profile=personal&environment=iss")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["profile"] == "personal"
+    assert body["environment"] == "iss"
+    hr = body["indicators"]["resting_heart_rate_bpm"]
+    assert hr["source"] == "personal"
+    assert hr["generic"]["warning_high"] == 90
+    assert hr["baseline_median"] is not None
+
+    generic = client.get("/api/v1/crew/C001/thresholds").json()
+    assert generic["indicators"]["resting_heart_rate_bpm"]["source"] == "generic"
+    assert generic["baseline_days"] == 0
+
+
+def test_days_in_environment_scales_the_core_temperature_shift():
+    base = "/api/v1/crew/C001/thresholds?environment=iss"
+    unknown = client.get(base).json()
+    assert unknown["days_in_environment"] is None
+    assert unknown["indicators"]["body_temperature_c"]["environment_shift"] == 0
+    adapted = client.get(base + "&days_in_environment=75").json()
+    assert adapted["days_in_environment"] == 75
+    assert adapted["indicators"]["body_temperature_c"]["environment_shift"] == 1.0
+    assert client.get(base + "&days_in_environment=-1").status_code == 422
+
+
+def test_environments_list_the_evidence():
+    body = client.get("/api/v1/environments").json()
+    assert "stahn2017" in body["references"]
+    iss = next(e for e in body["environments"] if e["key"] == "iss")
+    assert iss["basis"] and "stahn2017" in iss["sources"]
+
+
+def test_crew_assessment():
+    r = client.get("/api/v1/crew/C001/assessment?days=3&profile=personal")
+    assert r.status_code == 200
+    body = r.json()
+    assert len(body["days"]) == 3
+    assert body["latest_status"] in ("nominal", "warning", "critical")
+    assert len(body["days"][0]["indicators"]) == 9
+
+
+def test_threshold_params_are_validated():
+    assert client.get("/api/v1/crew/C001/thresholds?profile=average").status_code == 422
+    assert client.get("/api/v1/crew/C001/thresholds?environment=venus").status_code == 422
+    assert client.get("/api/v1/alerts?environment=venus").status_code == 422
+    assert client.get("/api/v1/crew/C001/assessment?days=0").status_code == 422
+    assert client.get("/api/v1/crew/C999/thresholds").status_code == 404
+
+
+def test_forecast_honours_profile_and_environment():
+    r = client.get("/api/v1/crew/C001/forecast?profile=personal&environment=mars_transit")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["profile"] == "personal"
+    assert body["environment"] == "mars_transit"
+
+
+def test_environments_and_detection():
+    body = client.get("/api/v1/environments").json()
+    keys = {e["key"] for e in body["environments"]}
+    assert {"earth_ground", "atmosphere", "launch", "iss", "mars_surface"} <= keys
+    assert body["default"] == "earth_ground"
+
+    r = client.get("/api/v1/environments/detect?altitude_km=408")
+    assert r.status_code == 200
+    assert r.json()["environment"] == "iss"
+    r = client.get("/api/v1/environments/detect?body=mars&accel_g=0.38")
+    assert r.json()["environment"] == "mars_surface"
+    assert client.get("/api/v1/environments/detect?body=venus").status_code == 422
+    assert client.get("/api/v1/environments/detect?altitude_km=-1").status_code == 422
+
+
+def test_alerts_carry_data_source():
+    alerts = client.get("/api/v1/alerts").json()["alerts"]
+    expected = {"lab": "real", "vitals": "synthetic", "radiation": "real_live"}
+    assert alerts
+    for a in alerts:
+        assert a["data_source"] == expected[a["type"]], a

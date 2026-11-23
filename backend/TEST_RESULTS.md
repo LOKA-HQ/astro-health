@@ -1,3 +1,7 @@
+> Historical record of the run on Nov 14, 2026, before the forecast,
+> personal-threshold and environment features were added. Run `pytest -q` for
+> the current suite; CI runs it on every push.
+
 # Test results — Nov 14, 2026, ~12:55 PM (Africa/Cairo)
 
 Full suite: **23 passed, 0 failed** (`pytest -v`, 1.30s).
