@@ -43,6 +43,12 @@ for everybody everywhere.
   snapshot, priority alerts, crew readiness.
 - **Body** — interactive 3D crew model (Three.js) with a heart pulse synced
   to resting heart rate, 8 vital indicators and 30-day trend charts.
+- **Thresholds** — choose generic or personal limits and the environment (or
+  detect it from telemetry), how many days the crew member has been there and
+  where the personal baseline was recorded; see the limits in force beside the
+  generic ones, each person's baseline, the latest status, a chart against the
+  limits and the sources behind the environment's adjustments. English and
+  Arabic, dark and light.
 - **Labs** — Inspiration4 clinical and immune results flagged against
   reference ranges and personal baselines, with filters, 50-row pages and a
   weekly report export.
@@ -242,8 +248,8 @@ built in a multi-stage image and served by nginx).
   those are documented gaps. Values need review by a flight surgeon before
   any real use.
 - **The environment is a parameter** (or inferred from simple telemetry),
-  not yet tied to a real mission timeline, and the dashboard does not use
-  the personal or environment options.
+  not yet tied to a real mission timeline. The dashboard exposes both options
+  (header selectors and the Thresholds page).
 - **The forecast is a heuristic:** a robust linear trend over 14 days with no
   seasonality, no per-person model and no clinical validation.
 - **No authentication.** Real health data would need access control, audit

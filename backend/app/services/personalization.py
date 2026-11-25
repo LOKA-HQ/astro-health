@@ -206,10 +206,13 @@ def effective_thresholds(
             sigma *= env["spread_factor"] / base_env["spread_factor"]
             expected = center + shift
             th = {}
+            tolerance = environments.tolerance_for(env, field)
             for name in generic_th:
                 k = K_CRITICAL if name.startswith("critical") else K_WARNING
                 sign = 1 if name.endswith("high") else -1
                 th[name] = expected + sign * k * sigma
+                if sign == 1:
+                    th[name] += tolerance
             record.update(
                 source="personal",
                 baseline_median=round(center, 2),
@@ -240,7 +243,10 @@ def effective_thresholds(
                     )
             if not may_relax:
                 generic_shift = environments.shift_for(env, field, days_in_environment)
-                generic_here = {n: v + generic_shift for n, v in generic_th.items()}
+                generic_here = {
+                    n: v + generic_shift + (tolerance if n.endswith("high") else 0)
+                    for n, v in generic_th.items()
+                }
                 for name, limit in generic_here.items():
                     if name.endswith("high"):
                         th[name] = min(th[name], limit)
@@ -248,10 +254,15 @@ def effective_thresholds(
                         th[name] = max(th[name], limit)
         else:
             shift = environments.shift_for(env, field, days_in_environment)
-            th = {n: v + shift for n, v in generic_th.items()}
+            tolerance = environments.tolerance_for(env, field)
+            th = {
+                n: v + shift + (tolerance if n.endswith("high") else 0)
+                for n, v in generic_th.items()
+            }
             record["source"] = "generic" if profile == "generic" else "generic_fallback"
 
         record["environment_shift"] = round(shift, 2)
+        record["environment_tolerance_high"] = round(tolerance, 2)
         th = _clamp(th, _absolute_limits(field, env))
         record["thresholds"] = {n: round(v, 2) for n, v in th.items()}
         indicators[field] = record

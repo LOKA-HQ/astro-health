@@ -1,10 +1,20 @@
-import { Activity, Atom, ChevronDown, LayoutDashboard, Microscope, Orbit, X } from 'lucide-react';
+import {
+  Activity,
+  Atom,
+  ChevronDown,
+  LayoutDashboard,
+  Microscope,
+  Orbit,
+  Signal,
+  X,
+} from 'lucide-react';
 import Logo from '../Logo';
 
 // Sidebar navigation: [page name, icon, strings key].
 const nav = [
   ['Overview', LayoutDashboard, 'navOverview'],
   ['Body', Activity, 'navBody'],
+  ['Thresholds', Signal, 'navThresholds'],
   ['Labs', Microscope, 'navLabs'],
   ['Environment', Orbit, 'navEnv'],
 ];
