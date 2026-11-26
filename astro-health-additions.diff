@@ -4,5 +4,54 @@ Date: Wed, 25 Nov 2026 21:59:35 +0200
 Subject: [PATCH] Fix launch heart-rate limits, add invariant tests, Thresholds
  page and front-end tests
 
+Back-end: the launch heart-rate allowance (+30 bpm) also raised the lower
+limits, so a calm 73 bpm was critical during launch. It is now a one-sided
+tolerance on the upper limits only. Adds invariant tests over every crew
+member, profile and environment, with regression tests for the fix.
+
+Front-end: new Thresholds page (days in environment, where the baseline was
+recorded, environment detection, limits in force with latest status, chart
+against the limits, sources) in English and Arabic, dark and light. Adds
+front-end tests (node:test) for its logic and for translation completeness,
+and runs them in CI.
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01MrWVLDMU4QMRiXAM87Hppg
 ---
- astro-health-additions.diff already exists as an attachment in this session
+ .github/workflows/ci.yml                      |   2 +
+ CHANGELOG.md                                  |  27 ++
+ README.ar.md                                  |   3 +-
+ README.md                                     |  10 +-
+ backend/app/schemas/responses.py              |   3 +-
+ backend/app/services/environments.py          |  27 +-
+ backend/app/services/personalization.py       |  15 +-
+ backend/tests/test_invariants.py              | 373 ++++++++++++++++++
+ docs/SOURCES.md                               |   2 +-
+ frontend/README.md                            |   1 +
+ frontend/package.json                         |   3 +-
+ frontend/src/App.jsx                          |  16 +
+ frontend/src/components/Sidebar.jsx           |  12 +-
+ frontend/src/i18n.js                          | 146 +++++++
+ frontend/src/lib/context.js                   | 219 ++++++++++
+ frontend/src/lib/format.js                    |  10 +-
+ frontend/src/pages/ThresholdsPage.jsx         |  74 ++++
+ frontend/src/pages/thresholds/ContextCard.jsx | 168 +++++++++
+ frontend/src/pages/thresholds/EnvironmentCard.jsx  |  87 ++++
+ frontend/src/pages/thresholds/LimitsCard.jsx  |  99 +++++
+ frontend/src/pages/thresholds/VitalsChartCard.jsx |  97 +++++
+ frontend/src/pages/thresholds/thresholds.css  | 315 +++++++++++++++
+ frontend/src/pages/thresholds/useThresholdContext.js |  89 ++++++
+ frontend/test/context.test.js                 | 273 +++++++++++++
+ frontend/test/i18n.test.js                    | 103 +++++
+ 25 files changed, 2159 insertions(+), 15 deletions(-)
+ create mode 100644 backend/tests/test_invariants.py
+ create mode 100644 frontend/src/lib/context.js
+ create mode 100644 frontend/src/pages/ThresholdsPage.jsx
+ create mode 100644 frontend/src/pages/thresholds/ContextCard.jsx
+ create mode 100644 frontend/src/pages/thresholds/EnvironmentCard.jsx
+ create mode 100644 frontend/src/pages/thresholds/LimitsCard.jsx
+ create mode 100644 frontend/src/pages/thresholds/VitalsChartCard.jsx
+ create mode 100644 frontend/src/pages/thresholds/thresholds.css
+ create mode 100644 frontend/src/pages/thresholds/useThresholdContext.js
+ create mode 100644 frontend/test/context.test.js
+ create mode 100644 frontend/test/i18n.test.js
