@@ -1,0 +1,8 @@
+From 3c81782dbc8b205dfdf900d7b6cb9de67b25ccaf Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 25 Nov 2026 21:59:35 +0200
+Subject: [PATCH] Fix launch heart-rate limits, add invariant tests, Thresholds
+ page and front-end tests
+
+---
+ astro-health-additions.diff already exists as an attachment in this session
