@@ -31,7 +31,15 @@ export const limitStr = (o) =>
 
 // Breadcrumb label for a page key.
 export const pageLabel = (t, p) =>
-  t[{ Overview: 'navOverview', Body: 'navBody', Labs: 'navLabs', Environment: 'navEnv' }[p]];
+  t[
+    {
+      Overview: 'navOverview',
+      Body: 'navBody',
+      Thresholds: 'navThresholds',
+      Labs: 'navLabs',
+      Environment: 'navEnv',
+    }[p]
+  ];
 
 // Translated radiation status; unknown values pass through untranslated.
 export const radStatus = (t, s) =>

@@ -37,7 +37,7 @@ tolerance" (spread) factors for every environment.
 |---|---|---|---|
 | Atmosphere (aircraft) | SpO2 | -3 points | Arterial O2 saturation is 96% at sea level and 93% at 7,500 ft; the regulatory cabin limit is 8,000 ft [5] |
 | Atmosphere | Heart rate | 0 | No consistent change documented in the source [5] |
-| Launch / re-entry / landing | Resting heart rate | +30 bpm | Apollo Commanders peaked near 120 bpm (range 94-153) at touchdown; liftoff adds a 10-20 bpm spike [6]. +30 over the generic warning of 90 keeps a 120 bpm peak from being flagged |
+| Launch / re-entry / landing | Resting heart rate | +30 bpm on the upper limits only; lower limits and the expected value are unchanged | Apollo Commanders peaked near 120 bpm (range 94-153) at touchdown; liftoff adds a 10-20 bpm spike [6]. +30 over the generic warning of 90 keeps a 120 bpm peak from being flagged. The sources show a rise, not that a low rate becomes dangerous, so the allowance is one-sided (a calm 73 bpm is not flagged as critical at launch) |
 | Launch / re-entry / landing | Heart-rate absolute ceiling | 160 bpm (instead of 150) | The highest value reported in Shuttle crews was 160 bpm on the first stand after landing [7] |
 | ISS / Mars transit | Body temperature | +1.0 C, ramped over 75 days | Resting core temperature +1.01 C in 11 ISS astronauts, plateau around day 75 [1]. Not applied when `days_in_environment` is unknown, so early-flight fever is not hidden |
 | ISS / Mars transit | Systolic blood pressure | -7 mmHg | About 10 mmHg lower in 8 astronauts [2]; 7 mmHg lower seated systolic, not significant, in 9 astronauts [3]. The smaller figure is used, on systolic only |

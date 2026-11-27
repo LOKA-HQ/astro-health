@@ -8,6 +8,7 @@ import PageHeader from './components/PageHeader';
 import AlertModal from './components/AlertModal';
 import OverviewPage from './pages/OverviewPage';
 import BodyPage from './pages/BodyPage';
+import ThresholdsPage from './pages/ThresholdsPage';
 import LabsPage from './pages/LabsPage';
 import EnvironmentPage from './pages/EnvironmentPage';
 
@@ -288,6 +289,21 @@ function App() {
                   theme={theme}
                   environment={environment}
                   profile={profile}
+                  grid={grid}
+                  tick={tick}
+                  tipBg={tipBg}
+                  tipBorder={tipBorder}
+                />
+              )}
+              {page === 'Thresholds' && (
+                <ThresholdsPage
+                  t={t}
+                  crew={crew}
+                  vitals={vitals}
+                  profile={profile}
+                  environment={environment}
+                  onProfileChange={setProfile}
+                  onEnvironmentChange={setEnvironment}
                   grid={grid}
                   tick={tick}
                   tipBg={tipBg}

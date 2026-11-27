@@ -1,5 +1,32 @@
 # Astro Health — update notes
 
+## Launch fix, invariant tests, Thresholds page, front-end tests
+
+- **Fixed (back-end):** the launch heart-rate allowance (+30 bpm) was applied
+  as a plain shift, so it also raised the *lower* limits: a calm 73 bpm was
+  "critical" during launch, for every crew member with both profiles. It is
+  now a one-sided `tolerances` entry (`environments.tolerance_for`) that
+  moves the upper limits only; the expected value and the lower limits stay
+  put. The response gains `environment_tolerance_high` on each indicator of
+  `/crew/{id}/thresholds`. Absolute safety limits are unchanged.
+- **Back-end tests:** `tests/test_invariants.py` checks, for every crew
+  member x profile x environment, that limits are ordered, absolute limits
+  always apply, tighten-only indicators are never relaxed and values are
+  finite, plus regression tests for the launch fix.
+- **Thresholds page** (new sidebar entry, English and Arabic, dark and
+  light): "days in this environment" (for the gradual core-temperature
+  shift), where the personal baseline was recorded (before the flight on
+  Earth, or in place), environment detection from telemetry, the limits in
+  force against the generic ones with each person's baseline, the latest
+  value, deviation and status, a chart against the limits and the cited
+  sources. The profile and environment are the ones chosen in the page
+  header. The environment description, basis and citations are written by
+  the API and are shown in English.
+- **Front-end tests** (`npm test`, Node's built-in runner, no new
+  dependencies): the page logic in `src/lib/context.js` and a check that
+  English and Arabic have the same strings and that every string the page
+  uses exists. Run in CI.
+
 ## Personalised and location-aware thresholds
 
 - **Personal thresholds** (`profile=personal`): warning and critical limits

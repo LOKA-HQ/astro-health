@@ -11,6 +11,12 @@ Each environment carries:
   personal baseline (personal profile). A shift is either a number or
   ``{"value": x, "ramp_days": n}`` when the published data show a gradual
   adaptation (the shift then grows linearly over ``ramp_days``).
+- ``tolerances``: extra room on one side only, for indicators that are
+  expected to *rise* briefly without the opposite being expected (heart
+  rate during launch). ``{"indicator": {"high": x}}`` is added to the upper
+  limits only; the expected value and the lower limits do not move, so a
+  calm, low reading is never flagged just because the environment is
+  demanding.
 - ``spread_factor``: how much wider the personal tolerance band is. It is
   1.0 everywhere because no source supports a different value; the field is
   kept so it can be calibrated.
@@ -211,14 +217,17 @@ ENVIRONMENTS = {
         "basis": (
             "Apollo Commanders peaked near 120 bpm (up to 153) during "
             "powered descent and Shuttle crews reached 160 bpm on the first "
-            "stand after landing. The heart-rate limits move up by 30 bpm "
-            "so that a 120 bpm peak (generic warning 90 + 30) is not "
+            "stand after landing. The upper heart-rate limits move up by "
+            "30 bpm so that a 120 bpm peak (generic warning 90 + 30) is not "
             "flagged, and the absolute heart-rate ceiling is raised to "
-            "160 bpm. No sourced values exist for other indicators, so "
-            "they are unchanged."
+            "160 bpm. The lower limits and the expected value are unchanged: "
+            "the sources show a rise, not that a low rate becomes dangerous. "
+            "No sourced values exist for other indicators, so they are "
+            "unchanged."
         ),
         "sources": ["apollo_lsah", "edomp1996"],
-        "shifts": {"resting_heart_rate_bpm": 30},
+        "shifts": {},
+        "tolerances": {"resting_heart_rate_bpm": {"high": 30}},
         "spread_factor": 1.0,
         "absolute_overrides": {"resting_heart_rate_bpm": {"high": 160}},
     },
@@ -295,6 +304,14 @@ def shift_for(env, field, days_in_environment=None):
         fraction = min(1.0, max(0.0, days_in_environment / shift["ramp_days"]))
         return shift["value"] * fraction
     return shift
+
+
+def tolerance_for(env, field):
+    """Extra room on the upper limits of `field` in `env` (0 when none).
+
+    Unlike a shift this does not move the expected value or the lower
+    limits; see the module docstring."""
+    return env.get("tolerances", {}).get(field, {}).get("high", 0)
 
 
 def full_shift_for(env, field):

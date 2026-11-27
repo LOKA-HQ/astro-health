@@ -174,7 +174,8 @@ class ThresholdIndicator(BaseModel):
     source: str  # generic | personal | generic_fallback
     generic: dict[str, float]  # the fixed thresholds for comparison
     thresholds: dict[str, float]  # the limits actually in force
-    environment_shift: float
+    environment_shift: float  # moves the expected value and every limit
+    environment_tolerance_high: float = 0.0  # extra room on upper limits only
     # Personal profile only:
     baseline_median: float | None = None
     baseline_days: int | None = None
